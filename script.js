@@ -66,33 +66,26 @@ function descargarCarnet() {
   const carnet = document.getElementById("carnet");
   const boton = carnet.querySelector("button");
 
-  if (boton) boton.style.display = "none"; // Ocultar botón durante exportación
+  if (boton) boton.style.display = "none"; // Ocultar botón al exportar
 
   const opt = {
     margin: 0,
-    filename: "carnet_digital.pdf",
+    filename: "carnet_identilucha.pdf",
     image: { type: "jpeg", quality: 1 },
-    html2canvas: { scale: 4, useCORS: true },
+    html2canvas: {
+      scale: 3,
+      useCORS: true,
+      windowWidth: carnet.scrollWidth,
+      windowHeight: carnet.scrollHeight,
+    },
     jsPDF: {
       unit: "mm",
-      format: [85.6, 53.98], // Tamaño real de tarjeta
+      format: [85.6, 53.98],
       orientation: "landscape",
     },
   };
 
   html2pdf().from(carnet).set(opt).save().then(() => {
     if (boton) boton.style.display = "inline-block";
-  });
-}
-
-function generarQR(texto) {
-  return new Promise((resolve) => {
-    const canvas = document.createElement("canvas");
-    const qr = new QRious({
-      element: canvas,
-      value: texto,
-      size: 100,
-    });
-    resolve(canvas.toDataURL("image/png"));
   });
 }
