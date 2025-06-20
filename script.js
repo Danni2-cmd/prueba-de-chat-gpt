@@ -1,59 +1,53 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('registroForm');
-    const carnetContainer = document.getElementById('carnet-container');
-    const carnetVirtual = document.getElementById('carnet-virtual');
-    const qrCodeContainer = document.getElementById('carnet-qr');
-    let qrCodeInstance = null;
+document.getElementById("formulario").addEventListener("submit", function(e) {
+  e.preventDefault();
 
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const nombres = document.getElementById('nombres').value.toUpperCase();
-        const tipoDoc = document.getElementById('tipoDoc').value;
-        const numDoc = document.getElementById('numDoc').value;
-        const telEmergencia = document.getElementById('telEmergencia').value;
-        const tipoSangre = document.getElementById('tipoSangre').value.toUpperCase();
-        const rol = document.getElementById('rol').value;
-        const fotoInput = document.getElementById('foto');
+  const nombre = document.getElementById("nombre").value;
+  const tipoDoc = document.getElementById("tipo-doc").value;
+  const numeroDoc = document.getElementById("numero-doc").value;
+  const contacto = document.getElementById("contacto").value;
+  const sangre = document.getElementById("sangre").value;
+  const rol = document.getElementById("rol").value;
+  const fotoInput = document.getElementById("foto");
 
-        if (fotoInput.files && fotoInput.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) { document.getElementById('carnet-foto').src = e.target.result; };
-            reader.readAsDataURL(fotoInput.files[0]);
-        }
+  document.getElementById("nombre-c").textContent = nombre;
+  document.getElementById("documento-c").textContent = `${tipoDoc} ${numeroDoc}`;
+  document.getElementById("contacto-c").textContent = contacto;
+  document.getElementById("sangre-c").textContent = sangre;
+  document.getElementById("rol-c").textContent = rol;
 
-        document.getElementById('carnet-nombres').innerText = nombres;
-        document.getElementById('carnet-rol').innerText = rol.toUpperCase();
-        document.getElementById('carnet-doc').innerText = `${tipoDoc} ${numDoc}`;
-        document.getElementById('carnet-sangre').innerText = tipoSangre;
-        document.getElementById('carnet-tel').innerText = telEmergencia;
+  const reader = new FileReader();
+  reader.onload = function () {
+    document.getElementById("foto-preview").src = reader.result;
 
-        carnetVirtual.dataset.rol = rol.toLowerCase();
+    // Generar QR con link real
+    const qrData = `https://identilucha.vercel.app/carnet/${encodeURIComponent(numeroDoc)}`;
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrData)}&size=60x60`;
+    const qrImg = document.getElementById("qr-code");
+    qrImg.src = qrCodeUrl;
 
-        const verificationUrl = `https://danni2-cmd.github.io/carnet-de-lucha/index.html#verificar?id=${numDoc}`;
-        if (qrCodeInstance) { qrCodeContainer.innerHTML = ''; }
-        qrCodeInstance = new QRCode(qrCodeContainer, {
-            text: verificationUrl, width: 128, height: 128,
-            colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
-        });
-        
-        carnetContainer.style.display = 'flex';
-    });
+    const carnet = document.getElementById("carnet");
+    carnet.style.display = "block";
 
-    document.getElementById('descargar-pdf').addEventListener('click', () => {
-        const numDoc = document.getElementById('numDoc').value;
-        const fileName = `Carnet_Lucha_${numDoc}.pdf`;
-        const options = { scale: 4, useCORS: true, backgroundColor: '#ffffff' };
+    setTimeout(() => {
+      generarPDF(carnet);
+    }, 1000);
+  };
 
-        html2canvas(carnetVirtual, options).then(canvas => {
-            const cardWidthMM = 85.60;
-            const cardHeightMM = 53.98;
-            const pdf = new jspdf.jsPDF({
-                orientation: 'landscape',
-                unit: 'mm',
-                format: [cardWidthMM, cardHeightMM]
-            });
-            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, cardWidthMM, cardHeightMM);
-            pdf.save(fileName);
-        });
-    });
+  reader.readAsDataURL(fotoInput.files[0]);
 });
+
+function generarPDF(carnet) {
+  const opt = {
+    margin: 0,
+    filename: 'carnet_digital.pdf',
+    image: { type: 'jpeg', quality: 1 },
+    html2canvas: { scale: 3, useCORS: true },
+    jsPDF: {
+      unit: 'in',
+      format: [3.37, 2.125], // EXACTAMENTE 85.6 mm x 53.98 mm
+      orientation: 'landscape'
+    }
+  };
+
+  html2pdf().from(carnet).set(opt).save();
+}

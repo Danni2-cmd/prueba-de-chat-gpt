@@ -1,78 +1,62 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carnetización - Liga Santandereana de Lucha</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generador de Carnets - Liga Santandereana de Lucha Olímpica</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <form id="formulario">
+    <h1>Generar Carnet Deportivo</h1>
 
-    <header class="main-header">
-        <img src="logo.png" alt="Logo de la Liga" class="header-logo">
-        <h1>Portal de Carnetización</h1>
-        <h2>Liga Santandereana de Lucha Olímpica</h2>
-    </header>
+    <input type="text" id="nombre" placeholder="Nombres completos" required />
+    
+    <select id="tipo-doc" required>
+      <option value="">Tipo de documento</option>
+      <option value="CC">Cédula de Ciudadanía</option>
+      <option value="TI">Tarjeta de Identidad</option>
+      <option value="CE">Cédula de Extranjería</option>
+    </select>
+    
+    <input type="text" id="numero-doc" placeholder="Número de documento" required />
+    <input type="text" id="contacto" placeholder="Número de contacto de emergencia" required />
+    <input type="text" id="sangre" placeholder="Tipo de sangre" required />
 
-    <main class="container">
-        <div class="form-container">
-            <h3>Registro de Afiliado</h3>
-            <form id="registroForm">
-                <div class="form-grid">
-                    <div class="form-group"><label for="nombres">Nombres y Apellidos</label><input type="text" id="nombres" class="form-input" required></div>
-                    <div class="form-group"><label for="rol">Rol en la Liga</label><select id="rol" class="form-input"><option value="Deportista">Deportista</option><option value="Entrenador">Entrenador</option><option value="Juez">Juez</option><option value="Administrativo">Administrativo</option></select></div>
-                    <div class="form-group"><label for="numDoc">Número de Documento</label><input type="text" id="numDoc" class="form-input" required></div>
-                    <div class="form-group"><label for="tipoDoc">Tipo de Documento</label><select id="tipoDoc" class="form-input"><option value="CC">C.C.</option><option value="TI">T.I.</option><option value="CE">C.E.</option><option value="PA">Pasaporte</option></select></div>
-                    <div class="form-group"><label for="tipoSangre">Tipo de Sangre y RH</label><input type="text" id="tipoSangre" class="form-input" placeholder="Ej: O+" required></div>
-                    <div class="form-group"><label for="telEmergencia">Teléfono de Emergencia</label><input type="tel" id="telEmergencia" class="form-input" required></div>
-                    <div class="form-group full-width"><label for="foto">Foto tipo Documento (Fondo Blanco)</label><input type="file" id="foto" class="form-input" accept="image/*" required></div>
-                </div>
-                <button type="submit" class="btn btn-primary">Generar Carnet</button>
-            </form>
+    <select id="rol">
+      <option value="DEPORTISTA">Deportista</option>
+      <option value="ENTRENADOR">Entrenador</option>
+      <option value="JUEZ">Juez</option>
+      <option value="ADMINISTRATIVO - PRESIDENTE">Presidente</option>
+      <option value="ADMINISTRATIVO - TESORERO">Tesorero</option>
+      <option value="ADMINISTRATIVO - COMITÉ">Comité Interdisciplinario</option>
+    </select>
+
+    <input type="file" id="foto" accept="image/*" required />
+    <button type="submit">Generar Carnet</button>
+  </form>
+
+  <div id="carnet" style="display:none;">
+    <div class="carnet-contenedor">
+      <img src="logo.png" class="logo" />
+      <div class="contenido">
+        <h2>LIGA SANTANDEREANA DE LUCHA OLÍMPICA</h2>
+        <div class="datos">
+          <img id="foto-preview" class="foto" />
+          <div class="texto">
+            <p><strong>Nombre:</strong> <span id="nombre-c"></span></p>
+            <p><strong>Documento:</strong> <span id="documento-c"></span></p>
+            <p><strong>Emergencia:</strong> <span id="contacto-c"></span></p>
+            <p><strong>Sangre:</strong> <span id="sangre-c"></span></p>
+            <p><strong>Rol:</strong> <span id="rol-c"></span></p>
+          </div>
         </div>
+      </div>
+      <img id="qr-code" class="qr" />
+    </div>
+  </div>
 
-        <div id="carnet-container" class="carnet-container" style="display: none;">
-            <h3>Vista Previa del Carnet</h3>
-            
-            <div id="carnet-virtual">
-                <div class="carnet-header">
-                    <img src="logo.png" id="logo-img" alt="Logo">
-                    <span>LIGA SANTANDEREANA DE LUCHA OLÍMPICA</span>
-                </div>
-                <div class="carnet-body">
-                    <div class="foto-container">
-                        <img id="carnet-foto" src="" alt="Foto">
-                    </div>
-                    <div class="info-container">
-                        <div class="info-nombre">
-                            <p id="carnet-nombres">NOMBRE APELLIDO</p>
-                            <span id="carnet-doc">C.C. 1234567890</span>
-                        </div>
-                        <div id="carnet-rol-barra" class="rol-barra">
-                            <span id="carnet-rol">ROL</span>
-                        </div>
-                        <div class="info-detalles">
-                            <div class="detalles-contacto">
-                                <label>Número de contacto de emergencia:</label>
-                                <span id="carnet-tel">3001234567</span>
-                                <span id="carnet-sangre">O+</span>
-                            </div>
-                            <div id="carnet-qr" class="qr-code"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <button id="descargar-pdf" class="btn btn-secondary">Descargar en PDF</button>
-        </div>
-    </main>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="qrcode.min.js"></script>
-    <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
