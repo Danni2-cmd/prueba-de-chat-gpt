@@ -1,91 +1,59 @@
-document.getElementById("rol").addEventListener("change", function () {
-  const esAdmin = this.value === "ADMINISTRATIVO";
-  document.getElementById("puestoLabel").style.display = esAdmin ? "block" : "none";
-  document.getElementById("puesto").style.display = esAdmin ? "block" : "none";
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('registroForm');
+    const carnetContainer = document.getElementById('carnet-container');
+    const carnetVirtual = document.getElementById('carnet-virtual');
+    const qrCodeContainer = document.getElementById('carnet-qr');
+    let qrCodeInstance = null;
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const nombres = document.getElementById('nombres').value.toUpperCase();
+        const tipoDoc = document.getElementById('tipoDoc').value;
+        const numDoc = document.getElementById('numDoc').value;
+        const telEmergencia = document.getElementById('telEmergencia').value;
+        const tipoSangre = document.getElementById('tipoSangre').value.toUpperCase();
+        const rol = document.getElementById('rol').value;
+        const fotoInput = document.getElementById('foto');
+
+        if (fotoInput.files && fotoInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) { document.getElementById('carnet-foto').src = e.target.result; };
+            reader.readAsDataURL(fotoInput.files[0]);
+        }
+
+        document.getElementById('carnet-nombres').innerText = nombres;
+        document.getElementById('carnet-rol').innerText = rol.toUpperCase();
+        document.getElementById('carnet-doc').innerText = `${tipoDoc} ${numDoc}`;
+        document.getElementById('carnet-sangre').innerText = tipoSangre;
+        document.getElementById('carnet-tel').innerText = telEmergencia;
+
+        carnetVirtual.dataset.rol = rol.toLowerCase();
+
+        const verificationUrl = `https://danni2-cmd.github.io/carnet-de-lucha/index.html#verificar?id=${numDoc}`;
+        if (qrCodeInstance) { qrCodeContainer.innerHTML = ''; }
+        qrCodeInstance = new QRCode(qrCodeContainer, {
+            text: verificationUrl, width: 128, height: 128,
+            colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        carnetContainer.style.display = 'flex';
+    });
+
+    document.getElementById('descargar-pdf').addEventListener('click', () => {
+        const numDoc = document.getElementById('numDoc').value;
+        const fileName = `Carnet_Lucha_${numDoc}.pdf`;
+        const options = { scale: 4, useCORS: true, backgroundColor: '#ffffff' };
+
+        html2canvas(carnetVirtual, options).then(canvas => {
+            const cardWidthMM = 85.60;
+            const cardHeightMM = 53.98;
+            const pdf = new jspdf.jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: [cardWidthMM, cardHeightMM]
+            });
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, cardWidthMM, cardHeightMM);
+            pdf.save(fileName);
+        });
+    });
 });
-
-document.getElementById("carnetForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  const nombres = document.getElementById("nombres").value;
-  const tipoDocumento = document.getElementById("tipoDocumento").value;
-  const numeroDocumento = document.getElementById("numeroDocumento").value;
-  const tipoSangre = document.getElementById("tipoSangre").value;
-  const contactoEmergencia = document.getElementById("contactoEmergencia").value;
-  const rol = document.getElementById("rol").value;
-  const puesto = document.getElementById("puesto").value || "";
-  const fotoFile = document.getElementById("foto").files[0];
-
-  const reader = new FileReader();
-  reader.onloadend = async function () {
-    const fotoBase64 = reader.result;
-
-    const qrText = `https://identilucha.vercel.app/carnet.html?doc=${numeroDocumento}`;
-    const qrDataUrl = await generarQR(qrText);
-
-    const data = {
-      nombres,
-      tipoDocumento,
-      numeroDocumento,
-      tipoSangre,
-      contactoEmergencia,
-      rol,
-      puesto,
-      foto: fotoBase64,
-      qrDataUrl,
-    };
-
-    localStorage.setItem(numeroDocumento, JSON.stringify(data));
-    mostrarCarnet(data);
-  };
-
-  reader.readAsDataURL(fotoFile);
-});
-
-function mostrarCarnet(data) {
-  const container = document.getElementById("preview");
-  container.innerHTML = `
-    <div class="carnet" id="carnet">
-      <img src="logo.png" class="logo">
-      <img src="${data.foto}" class="foto">
-      <div class="info">
-        <strong>${data.nombres}</strong><br>
-        ${data.tipoDocumento}: ${data.numeroDocumento}<br>
-        Sangre: ${data.tipoSangre}<br>
-        Emergencia: ${data.contactoEmergencia}<br>
-        Rol: ${data.rol} ${data.puesto}
-      </div>
-      <img src="${data.qrDataUrl}" class="qr">
-      <button id="descargarPDF" onclick="descargarCarnet()">Descargar PDF</button>
-    </div>
-  `;
-  container.style.display = "block";
-}
-
-function descargarCarnet() {
-  const carnet = document.getElementById("carnet");
-  const boton = carnet.querySelector("button");
-
-  if (boton) boton.style.display = "none"; // Ocultar botón al exportar
-
-  const opt = {
-    margin: 0,
-    filename: "carnet_identilucha.pdf",
-    image: { type: "jpeg", quality: 1 },
-    html2canvas: {
-      scale: 3,
-      useCORS: true,
-      windowWidth: carnet.scrollWidth,
-      windowHeight: carnet.scrollHeight,
-    },
-    jsPDF: {
-      unit: "mm",
-      format: [85.6, 53.98],
-      orientation: "landscape",
-    },
-  };
-
-  html2pdf().from(carnet).set(opt).save().then(() => {
-    if (boton) boton.style.display = "inline-block";
-  });
-}
