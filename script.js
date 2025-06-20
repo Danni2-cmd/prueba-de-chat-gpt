@@ -4,7 +4,7 @@ document.getElementById("rol").addEventListener("change", function () {
   document.getElementById("puesto").style.display = esAdmin ? "block" : "none";
 });
 
-document.getElementById("carnetForm").addEventListener("submit", async function (e) {
+document.getElementById("carnetForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
   const nombres = document.getElementById("nombres").value;
@@ -38,6 +38,7 @@ document.getElementById("carnetForm").addEventListener("submit", async function 
     localStorage.setItem(numeroDocumento, JSON.stringify(data));
     mostrarCarnet(data);
   };
+
   reader.readAsDataURL(fotoFile);
 });
 
@@ -65,22 +66,22 @@ function descargarCarnet() {
   const carnet = document.getElementById("carnet");
   const boton = carnet.querySelector("button");
 
-  if (boton) boton.style.display = "none"; // Ocultar el botón antes de exportar
+  if (boton) boton.style.display = "none"; // Ocultar botón durante exportación
 
   const opt = {
     margin: 0,
-    filename: 'carnet_digital.pdf',
-    image: { type: 'jpeg', quality: 1 },
+    filename: "carnet_digital.pdf",
+    image: { type: "jpeg", quality: 1 },
     html2canvas: { scale: 4, useCORS: true },
     jsPDF: {
-      unit: 'mm',
-      format: [85.6, 53.98],
-      orientation: 'landscape'
-    }
+      unit: "mm",
+      format: [85.6, 53.98], // Tamaño real de tarjeta
+      orientation: "landscape",
+    },
   };
 
   html2pdf().from(carnet).set(opt).save().then(() => {
-    if (boton) boton.style.display = "inline-block"; // Mostrar botón nuevamente
+    if (boton) boton.style.display = "inline-block";
   });
 }
 
