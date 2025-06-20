@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generador de Carnets - Liga Santandereana de Lucha Olímpica</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <form id="formulario">
+    <h1>Generar Carnet Deportivo</h1>
+
+    <input type="text" id="nombre" placeholder="Nombres completos" required />
+    
+    <select id="tipo-doc" required>
+      <option value="">Tipo de documento</option>
+      <option value="CC">Cédula de Ciudadanía</option>
+      <option value="TI">Tarjeta de Identidad</option>
+      <option value="CE">Cédula de Extranjería</option>
+    </select>
+    
+    <input type="text" id="numero-doc" placeholder="Número de documento" required />
+    <input type="text" id="contacto" placeholder="Número de contacto de emergencia" required />
+    <input type="text" id="sangre" placeholder="Tipo de sangre" required />
+
+    <select id="rol">
+      <option value="DEPORTISTA">Deportista</option>
+      <option value="ENTRENADOR">Entrenador</option>
+      <option value="JUEZ">Juez</option>
+      <option value="ADMINISTRATIVO - PRESIDENTE">Presidente</option>
+      <option value="ADMINISTRATIVO - TESORERO">Tesorero</option>
+      <option value="ADMINISTRATIVO - COMITÉ">Comité Interdisciplinario</option>
+    </select>
+
+    <input type="file" id="foto" accept="image/*" required />
+    <button type="submit">Generar Carnet</button>
+  </form>
+
+  <div id="carnet" style="display:none;">
+    <div class="carnet-contenedor">
+      <img src="logo.png" class="logo" />
+      <div class="contenido">
+        <h2>LIGA SANTANDEREANA DE LUCHA OLÍMPICA</h2>
+        <div class="datos">
+          <img id="foto-preview" class="foto" />
+          <div class="texto">
+            <p><strong>Nombre:</strong> <span id="nombre-c"></span></p>
+            <p><strong>Documento:</strong> <span id="documento-c"></span></p>
+            <p><strong>Emergencia:</strong> <span id="contacto-c"></span></p>
+            <p><strong>Sangre:</strong> <span id="sangre-c"></span></p>
+            <p><strong>Rol:</strong> <span id="rol-c"></span></p>
+          </div>
+        </div>
+      </div>
+      <img id="qr-code" class="qr" />
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
